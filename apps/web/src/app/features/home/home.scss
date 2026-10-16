@@ -1,0 +1,30 @@
+.spacer {
+  flex: 1;
+}
+
+.content {
+  max-width: 720px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  color: var(--mat-sys-on-primary-container);
+  background: var(--mat-sys-primary-container);
+}
+
+h3 {
+  font: var(--mat-sys-title-small);
+  margin: 16px 0 8px;
+}
+
+pre {
+  margin: 0;
+  padding: 12px;
+  overflow-x: auto;
+  border-radius: var(--mat-sys-corner-small);
+  background: var(--mat-sys-surface-container);
+  font-size: 13px;
+}

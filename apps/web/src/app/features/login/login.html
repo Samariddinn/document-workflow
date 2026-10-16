@@ -1,0 +1,64 @@
+<main class="login-page">
+  <mat-card class="login-card" appearance="outlined">
+    <mat-card-header>
+      <mat-icon mat-card-avatar class="brand-icon">description</mat-icon>
+      <mat-card-title>Document Workflow</mat-card-title>
+      <mat-card-subtitle>Sign in to your account</mat-card-subtitle>
+    </mat-card-header>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <mat-card-content>
+        <mat-form-field appearance="outline">
+          <mat-label>Username</mat-label>
+          <input matInput formControlName="username" autocomplete="username" autofocus />
+          <mat-icon matPrefix>person</mat-icon>
+          @if (form.controls.username.hasError('required')) {
+            <mat-error>Username is required</mat-error>
+          } @else if (form.controls.username.hasError('maxlength')) {
+            <mat-error>Username must be at most 30 characters</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            formControlName="password"
+            [type]="hidePassword() ? 'password' : 'text'"
+            autocomplete="current-password"
+          />
+          <mat-icon matPrefix>lock</mat-icon>
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="hidePassword.set(!hidePassword())"
+            [attr.aria-label]="hidePassword() ? 'Show password' : 'Hide password'"
+          >
+            <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+          @if (form.controls.password.hasError('required')) {
+            <mat-error>Password is required</mat-error>
+          }
+        </mat-form-field>
+
+        @if (error(); as message) {
+          <p class="error" role="alert">
+            <mat-icon>error</mat-icon>
+            <span>{{ message }}</span>
+          </p>
+        }
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-flat-button type="submit" class="submit" [disabled]="loading()">
+          @if (loading()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            Sign in
+          }
+        </button>
+      </mat-card-actions>
+    </form>
+  </mat-card>
+</main>

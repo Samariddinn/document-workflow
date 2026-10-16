@@ -1,0 +1,7 @@
+{
+  // Inline "ghost text" completions (Copilot / AI suggestions)
+  "editor.inlineSuggest.enabled": false,
+  "github.copilot.enable": { "*": false },
+  "github.copilot.nextEditSuggestions.enabled": false,
+  "chat.disableAIFeatures": true,
+}

@@ -1,0 +1,16 @@
+{
+  "name": "document-workflow",
+  "private": true,
+  "packageManager": "pnpm@12.5.1",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @dw/shared build && pnpm --parallel --filter @dw/shared --filter web --filter api start:dev",
+    "dev:web": "pnpm --filter web start",
+    "dev:api": "pnpm --filter api start:dev",
+    "build": "pnpm --filter @dw/shared build && pnpm --filter web --filter api build",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint"
+  }
+}

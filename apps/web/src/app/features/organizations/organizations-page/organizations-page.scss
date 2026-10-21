@@ -1,0 +1,76 @@
+.spacer {
+  flex: 1;
+}
+
+.content {
+  max-width: 880px;
+  margin: 24px auto;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+form {
+  margin-top: 16px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 16px;
+
+  mat-form-field {
+    flex: 1 1 180px;
+  }
+
+  .wide {
+    flex: 3 1 320px;
+  }
+}
+
+.list-card mat-card-content {
+  margin-top: 8px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+}
+
+.empty {
+  margin: 8px 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 12px;
+  border-radius: var(--mat-sys-corner-small);
+  font: var(--mat-sys-body-medium);
+  word-break: break-word;
+
+  &.error {
+    color: var(--mat-sys-on-error-container);
+    background: var(--mat-sys-error-container);
+  }
+
+  &.success {
+    color: var(--mat-sys-on-primary-container);
+    background: var(--mat-sys-primary-container);
+  }
+}
+
+mat-card-actions mat-spinner {
+  margin: 0 auto;
+}

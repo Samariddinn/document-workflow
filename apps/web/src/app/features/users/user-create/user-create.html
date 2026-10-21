@@ -1,0 +1,162 @@
+<mat-toolbar>
+  <a mat-icon-button routerLink="/users" aria-label="Back to users">
+    <mat-icon>arrow_back</mat-icon>
+  </a>
+  <span>New user</span>
+</mat-toolbar>
+
+<main class="content">
+  <mat-card appearance="outlined">
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <mat-card-content>
+        <h2>Full name</h2>
+        <div class="row">
+          <mat-form-field appearance="outline">
+            <mat-label>Last name</mat-label>
+            <input matInput formControlName="last_name" autocomplete="off" />
+            @if (form.controls.last_name.hasError('required')) {
+              <mat-error>Last name is required</mat-error>
+            } @else if (form.controls.last_name.hasError('maxlength')) {
+              <mat-error>At most 50 characters</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>First name</mat-label>
+            <input matInput formControlName="first_name" autocomplete="off" />
+            @if (form.controls.first_name.hasError('required')) {
+              <mat-error>First name is required</mat-error>
+            } @else if (form.controls.first_name.hasError('maxlength')) {
+              <mat-error>At most 50 characters</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Middle name</mat-label>
+            <input matInput formControlName="middle_name" autocomplete="off" />
+            @if (form.controls.middle_name.hasError('required')) {
+              <mat-error>Middle name is required</mat-error>
+            } @else if (form.controls.middle_name.hasError('maxlength')) {
+              <mat-error>At most 50 characters</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <h2>Account</h2>
+        <div class="row">
+          <mat-form-field appearance="outline">
+            <mat-label>Username</mat-label>
+            <input matInput formControlName="username" autocomplete="off" />
+            @if (form.controls.username.hasError('required')) {
+              <mat-error>Username is required</mat-error>
+            } @else if (form.controls.username.hasError('maxlength')) {
+              <mat-error>At most 30 characters</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input
+              matInput
+              formControlName="password"
+              [type]="hidePassword() ? 'password' : 'text'"
+              autocomplete="new-password"
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="hidePassword.set(!hidePassword())"
+              [attr.aria-label]="hidePassword() ? 'Show password' : 'Hide password'"
+            >
+              <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+            </button>
+            @if (form.controls.password.hasError('required')) {
+              <mat-error>Password is required</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <h2>Organization</h2>
+        <div class="row">
+          <mat-form-field appearance="outline">
+            <mat-label>Role</mat-label>
+            <mat-select formControlName="role">
+              @for (role of roles; track role.value) {
+                <mat-option [value]="role.value">{{ role.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="wide">
+            <mat-label>Organization</mat-label>
+            <mat-select formControlName="org_id">
+              @for (org of organizations(); track org.id) {
+                <mat-option [value]="org.id">
+                  {{ org.name }} <span class="option-meta">· TIN {{ org.tin }}</span>
+                </mat-option>
+              }
+            </mat-select>
+            @if (orgsLoading()) {
+              <mat-spinner matSuffix diameter="18" />
+            }
+            @if (orgsLoading()) {
+              <mat-hint>Loading organizations…</mat-hint>
+            } @else if (!orgsError() && organizations().length === 0) {
+              <mat-hint>No organizations yet</mat-hint>
+            }
+            @if (form.controls.org_id.hasError('required')) {
+              <mat-error>Organization is required</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        @if (orgsError(); as message) {
+          <div class="banner error" role="alert">
+            <mat-icon>error</mat-icon>
+            <span>Could not load organizations: {{ message }}</span>
+            <span class="spacer"></span>
+            <button mat-button type="button" (click)="loadOrganizations()">Retry</button>
+          </div>
+        } @else if (!orgsLoading() && organizations().length === 0) {
+          <p class="banner info">
+            <mat-icon>info</mat-icon>
+            <span>Create an organization first.</span>
+            <span class="spacer"></span>
+            <a mat-button routerLink="/organizations">Organizations</a>
+          </p>
+        }
+
+        @if (error(); as message) {
+          <p class="banner error" role="alert">
+            <mat-icon>error</mat-icon>
+            <span>{{ message }}</span>
+          </p>
+        }
+
+        @if (created(); as user) {
+          <p class="banner success" role="status">
+            <mat-icon>check_circle</mat-icon>
+            <span>
+              Created <strong>{{ user.username }}</strong> ({{ user.last_name }} {{ user.first_name }})
+              @if (user.org_id && organizationName(user.org_id); as orgName) {
+                in {{ orgName }}
+              }
+            </span>
+          </p>
+        }
+      </mat-card-content>
+
+      <mat-card-actions align="end">
+        <a mat-button routerLink="/users">Cancel</a>
+        <button mat-flat-button type="submit" [disabled]="loading()">
+          @if (loading()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            Create user
+          }
+        </button>
+      </mat-card-actions>
+    </form>
+  </mat-card>
+</main>

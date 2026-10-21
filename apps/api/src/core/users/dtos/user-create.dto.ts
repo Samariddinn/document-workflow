@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsUUID, MaxLength } from "class-validator";
+import { IsIn, IsNotEmpty, IsString, IsUUID, MaxLength } from "class-validator";
 import { UserRoleEnum } from "../types/users.types.js";
 
 export class CreateUserDto {
@@ -7,9 +7,11 @@ export class CreateUserDto {
     username: string;
     
     @IsNotEmpty()
+    @IsIn([UserRoleEnum.HEAD, UserRoleEnum.EMPLOYEE])
     role: UserRoleEnum;
 
     @IsNotEmpty()
+    @IsString()
     password: string;
 
     @IsNotEmpty()
@@ -17,11 +19,14 @@ export class CreateUserDto {
     org_id: string;
 
     @IsNotEmpty()
+    @MaxLength(50)
     first_name: string;
 
+    @MaxLength(50)
     @IsNotEmpty()
     middle_name: string;
 
+    @MaxLength(50)
     @IsNotEmpty()
     last_name: string;
 }

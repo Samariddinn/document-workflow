@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, guestGuard } from './core/auth/auth.guards';
+import { authGuard, guestGuard, roleGuard } from './core/auth/auth.guards';
 
 export const routes: Routes = [
   {
@@ -11,6 +11,25 @@ export const routes: Routes = [
     path: '',
     canActivate: [authGuard],
     loadComponent: () => import('./features/home/home').then((m) => m.Home),
+  },
+  {
+    path: 'users',
+    canActivate: [authGuard, roleGuard('SUPER_ADMIN')],
+    loadComponent: () => import('./features/users/users-page/users-page').then((m) => m.UsersPage),
+  },
+  {
+    path: 'users/new',
+    canActivate: [authGuard, roleGuard('SUPER_ADMIN')],
+    loadComponent: () =>
+      import('./features/users/user-create/user-create').then((m) => m.UserCreate),
+  },
+  {
+    path: 'organizations',
+    canActivate: [authGuard, roleGuard('SUPER_ADMIN')],
+    loadComponent: () =>
+      import('./features/organizations/organizations-page/organizations-page').then(
+        (m) => m.OrganizationsPage,
+      ),
   },
   { path: '**', redirectTo: '' },
 ];

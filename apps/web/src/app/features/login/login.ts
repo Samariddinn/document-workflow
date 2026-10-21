@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
+import { errorMessage } from '../../core/http/error-message';
 
 @Component({
   selector: 'app-login',
@@ -53,18 +53,8 @@ export class Login {
       },
       error: (err: unknown) => {
         this.loading.set(false);
-        this.error.set(this.toMessage(err));
+        this.error.set(errorMessage(err));
       },
     });
-  }
-
-  private toMessage(err: unknown): string {
-    if (!(err instanceof HttpErrorResponse)) return 'Something went wrong.';
-    if (err.status === 0) return 'Cannot reach the server. Is the API running on port 3000?';
-
-    const message = err.error?.message;
-    if (Array.isArray(message)) return message.join('. ');
-    if (typeof message === 'string') return message;
-    return `Request failed (${err.status}).`;
   }
 }

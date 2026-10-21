@@ -4,12 +4,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 
 /** Temporary landing page: shows who is logged in and the decoded token. */
 @Component({
   selector: 'app-home',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, JsonPipe, DatePipe],
+  imports: [MatToolbarModule, MatButtonModule, MatIconModule, MatCardModule, JsonPipe, DatePipe, RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })

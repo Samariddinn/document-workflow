@@ -1,0 +1,126 @@
+<mat-toolbar>
+  <a mat-icon-button routerLink="/" aria-label="Back to home">
+    <mat-icon>arrow_back</mat-icon>
+  </a>
+  <span>Users</span>
+  <span class="spacer"></span>
+  <a mat-flat-button routerLink="/users/new">
+    <mat-icon>person_add</mat-icon>
+    New user
+  </a>
+</mat-toolbar>
+
+<main class="content">
+  <mat-card appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>All users</mat-card-title>
+      @if (!loading() && !error()) {
+        <mat-card-subtitle>
+          @if (filteredUsers().length === users().length) {
+            {{ users().length }} total
+          } @else {
+            {{ filteredUsers().length }} of {{ users().length }}
+          }
+        </mat-card-subtitle>
+      }
+    </mat-card-header>
+
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    <mat-card-content>
+      @if (error(); as message) {
+        <div class="banner error" role="alert">
+          <mat-icon>error</mat-icon>
+          <span>{{ message }}</span>
+          <span class="spacer"></span>
+          <button mat-button type="button" (click)="load()">Retry</button>
+        </div>
+      } @else if (!loading()) {
+        @if (users().length === 0) {
+          <p class="empty">
+            No users yet.
+            <a routerLink="/users/new">Create the first one.</a>
+          </p>
+        } @else {
+          <div class="filters">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search">
+              <mat-label>Search</mat-label>
+              <mat-icon matPrefix>search</mat-icon>
+              <input
+                matInput
+                placeholder="Name, username or organization"
+                autocomplete="off"
+                [value]="search()"
+                (input)="search.set($any($event.target).value)"
+              />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Organization</mat-label>
+              <mat-select [value]="orgFilter()" (valueChange)="orgFilter.set($event)">
+                <mat-option value="">All organizations</mat-option>
+                @for (org of organizations(); track org.id) {
+                  <mat-option [value]="org.id">{{ org.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          @if (filteredUsers().length === 0) {
+            <p class="empty">
+              No users match these filters.
+              <button mat-button type="button" (click)="clearFilters()">Clear filters</button>
+            </p>
+          } @else {
+            <div class="table-scroll">
+              <table mat-table [dataSource]="filteredUsers()">
+                <ng-container matColumnDef="name">
+                  <th mat-header-cell *matHeaderCellDef>Full name</th>
+                  <td mat-cell *matCellDef="let user">{{ fullName(user) }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="username">
+                  <th mat-header-cell *matHeaderCellDef>Username</th>
+                  <td mat-cell *matCellDef="let user" class="muted">{{ user.username }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="role">
+                  <th mat-header-cell *matHeaderCellDef>Role</th>
+                  <td mat-cell *matCellDef="let user">
+                    <span class="role" [class]="'role role-' + user.role">
+                      {{ roleLabel(user) }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="organization">
+                  <th mat-header-cell *matHeaderCellDef>Organization</th>
+                  <td mat-cell *matCellDef="let user">
+                    @if (user.organization; as org) {
+                      <div>{{ org.name }}</div>
+                      <div class="muted small">TIN {{ org.tin }}</div>
+                    } @else {
+                      <span class="muted">—</span>
+                    }
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="created_at">
+                  <th mat-header-cell *matHeaderCellDef>Created</th>
+                  <td mat-cell *matCellDef="let user" class="muted">
+                    {{ user.created_at | date: 'mediumDate' }}
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="columns"></tr>
+                <tr mat-row *matRowDef="let row; columns: columns"></tr>
+              </table>
+            </div>
+          }
+        }
+      }
+    </mat-card-content>
+  </mat-card>
+</main>

@@ -12,10 +12,12 @@ export interface LoginResponse {
   accessToken: string;
 }
 
+export type UserRole = 'SUPER_ADMIN' | 'HEAD' | 'EMPLOYEE';
+
 /** Claims the API puts into the access token. */
 export interface TokenPayload {
-  sub: number | string;
-  role: string;
+  sub: string;
+  role: UserRole;
   first_name: string;
   middle_name?: string | null;
   last_name: string;

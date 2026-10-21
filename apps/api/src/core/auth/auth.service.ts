@@ -16,7 +16,7 @@ export class AuthService {
 
         if(!user) throw new UnauthorizedException('Invalid username or password');
 
-        const isPasswordValid = argon2.verify(user.password_hash, password);
+        const isPasswordValid = await argon2.verify(user.password_hash, password);
 
         if(!isPasswordValid) throw new UnauthorizedException('Invalid username or password');
 

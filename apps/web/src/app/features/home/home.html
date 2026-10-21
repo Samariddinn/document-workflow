@@ -1,6 +1,16 @@
 <mat-toolbar>
   <span>Document Workflow</span>
   <span class="spacer"></span>
+  @if (auth.user()?.role === 'SUPER_ADMIN') {
+    <a mat-button routerLink="/organizations">
+      <mat-icon>apartment</mat-icon>
+      Organizations
+    </a>
+    <a mat-button routerLink="/users">
+      <mat-icon>group</mat-icon>
+      Users
+    </a>
+  }
   <button mat-button (click)="auth.logout()">
     <mat-icon>logout</mat-icon>
     Log out

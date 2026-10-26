@@ -41,6 +41,19 @@ table {
   width: 100%;
 }
 
+.actions-cell {
+  width: 48px;
+  text-align: end;
+}
+
+.danger {
+  color: var(--mat-sys-error);
+
+  mat-icon {
+    color: inherit;
+  }
+}
+
 .mono {
   font-variant-numeric: tabular-nums;
 }

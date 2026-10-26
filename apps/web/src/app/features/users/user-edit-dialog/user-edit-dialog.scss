@@ -1,0 +1,56 @@
+mat-dialog-content {
+  padding-top: 8px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 12px;
+
+  mat-form-field {
+    flex: 1 1 160px;
+  }
+
+  .wide {
+    flex: 2 1 240px;
+  }
+}
+
+.full {
+  width: 100%;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 12px;
+  border-radius: var(--mat-sys-corner-small);
+  font: var(--mat-sys-body-medium);
+  word-break: break-word;
+
+  &.error {
+    color: var(--mat-sys-on-error-container);
+    background: var(--mat-sys-error-container);
+  }
+}
+
+.note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+mat-dialog-actions mat-spinner {
+  margin: 0 auto;
+}

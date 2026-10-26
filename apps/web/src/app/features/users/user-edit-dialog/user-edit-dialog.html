@@ -1,0 +1,107 @@
+<h2 mat-dialog-title>Edit user</h2>
+
+<form [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <mat-dialog-content>
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Last name</mat-label>
+        <input matInput formControlName="last_name" autocomplete="off" />
+        @if (form.controls.last_name.hasError('required')) {
+          <mat-error>Last name is required</mat-error>
+        } @else if (form.controls.last_name.hasError('maxlength')) {
+          <mat-error>At most 50 characters</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>First name</mat-label>
+        <input matInput formControlName="first_name" autocomplete="off" />
+        @if (form.controls.first_name.hasError('required')) {
+          <mat-error>First name is required</mat-error>
+        } @else if (form.controls.first_name.hasError('maxlength')) {
+          <mat-error>At most 50 characters</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Middle name</mat-label>
+        <input matInput formControlName="middle_name" autocomplete="off" />
+        @if (form.controls.middle_name.hasError('required')) {
+          <mat-error>Middle name is required</mat-error>
+        } @else if (form.controls.middle_name.hasError('maxlength')) {
+          <mat-error>At most 50 characters</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>Username</mat-label>
+      <input matInput formControlName="username" autocomplete="off" />
+      @if (form.controls.username.hasError('required')) {
+        <mat-error>Username is required</mat-error>
+      } @else if (form.controls.username.hasError('maxlength')) {
+        <mat-error>At most 30 characters</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Role</mat-label>
+        <mat-select formControlName="role">
+          @for (role of roles; track role.value) {
+            <mat-option [value]="role.value">{{ role.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="wide">
+        <mat-label>Organization</mat-label>
+        <mat-select formControlName="org_id">
+          @for (org of organizations(); track org.id) {
+            <mat-option [value]="org.id">{{ org.name }}</mat-option>
+          }
+          @if (orgsLoading() && user.organization; as org) {
+            <!-- Keeps the current organization's name visible until the list arrives -->
+            <mat-option [value]="org.id">{{ org.name }}</mat-option>
+          }
+        </mat-select>
+        @if (orgsLoading()) {
+          <mat-hint>Loading organizations…</mat-hint>
+        }
+        @if (form.controls.org_id.hasError('required')) {
+          <mat-error>Organization is required</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    @if (orgsError(); as message) {
+      <p class="banner error" role="alert">
+        <mat-icon>error</mat-icon>
+        <span>Could not load organizations: {{ message }}</span>
+      </p>
+    }
+
+    @if (error(); as message) {
+      <p class="banner error" role="alert">
+        <mat-icon>error</mat-icon>
+        <span>{{ message }}</span>
+      </p>
+    }
+
+    <p class="note">
+      <mat-icon>info</mat-icon>
+      <span>Only changed fields are sent. Passwords can't be changed here.</span>
+    </p>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close [disabled]="saving()">Cancel</button>
+    <button mat-flat-button type="submit" [disabled]="saving() || !hasChanges()">
+      @if (saving()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        Save changes
+      }
+    </button>
+  </mat-dialog-actions>
+</form>

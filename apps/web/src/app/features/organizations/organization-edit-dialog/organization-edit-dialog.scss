@@ -1,0 +1,27 @@
+mat-dialog-content {
+  padding-top: 8px;
+}
+
+.full {
+  width: 100%;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 12px;
+  border-radius: var(--mat-sys-corner-small);
+  font: var(--mat-sys-body-medium);
+  word-break: break-word;
+
+  &.error {
+    color: var(--mat-sys-on-error-container);
+    background: var(--mat-sys-error-container);
+  }
+}
+
+mat-dialog-actions mat-spinner {
+  margin: 0 auto;
+}

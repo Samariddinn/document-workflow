@@ -8,6 +8,9 @@ export interface CreateOrganizationRequest {
   tin: string;
 }
 
+/** Body of `PATCH /organizations/:id`: only the fields being changed. */
+export type UpdateOrganizationRequest = Partial<CreateOrganizationRequest>;
+
 /** Organization row as returned by the API. */
 export interface Organization {
   id: string;
@@ -28,5 +31,14 @@ export class OrganizationsApi {
 
   create(body: CreateOrganizationRequest): Observable<Organization> {
     return this.http.post<Organization>('/api/organizations', body);
+  }
+
+  update(id: string, body: UpdateOrganizationRequest): Observable<unknown> {
+    return this.http.patch(`/api/organizations/${id}`, body);
+  }
+
+  /** Soft-deletes the organization and all of its users (server side, in one transaction). */
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`/api/organizations/${id}`);
   }
 }

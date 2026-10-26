@@ -33,6 +33,12 @@ export interface UserListItem {
   organization: UserOrganization | null;
 }
 
+/**
+ * Body of `PATCH /users/:id`: only the fields being changed.
+ * Password is left out on purpose: the API doesn't hash it on update yet.
+ */
+export type UpdateUserRequest = Partial<Omit<CreateUserRequest, 'password'>>;
+
 /** User as returned by `POST /users` (no password hash). */
 export interface User {
   id: string;
@@ -63,5 +69,13 @@ export class UsersApi {
 
   create(body: CreateUserRequest): Observable<User> {
     return this.http.post<User>('/api/users', body);
+  }
+
+  update(id: string, body: UpdateUserRequest): Observable<unknown> {
+    return this.http.patch(`/api/users/${id}`, body);
+  }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`/api/users/${id}`);
   }
 }

@@ -114,6 +114,21 @@
               <td mat-cell *matCellDef="let org">{{ org.created_at | date: 'mediumDate' }}</td>
             </ng-container>
 
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef><span class="cdk-visually-hidden">Actions</span></th>
+              <td mat-cell *matCellDef="let org" class="actions-cell">
+                <button
+                  mat-icon-button
+                  type="button"
+                  [matMenuTriggerFor]="rowMenu"
+                  [matMenuTriggerData]="{ org }"
+                  [attr.aria-label]="'Actions for ' + org.name"
+                >
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
             <tr mat-header-row *matHeaderRowDef="columns"></tr>
             <tr mat-row *matRowDef="let row; columns: columns"></tr>
           </table>
@@ -122,3 +137,16 @@
     </mat-card-content>
   </mat-card>
 </main>
+
+<mat-menu #rowMenu="matMenu" xPosition="before">
+  <ng-template matMenuContent let-org="org">
+    <button mat-menu-item type="button" (click)="edit(org)">
+      <mat-icon>edit</mat-icon>
+      <span>Edit</span>
+    </button>
+    <button mat-menu-item type="button" class="danger" (click)="confirmDelete(org)">
+      <mat-icon>delete</mat-icon>
+      <span>Delete</span>
+    </button>
+  </ng-template>
+</mat-menu>

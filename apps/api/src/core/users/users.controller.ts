@@ -6,6 +6,7 @@ import { RoleGuard } from '../guards/role.guard.js';
 import { Roles } from '../decorators/role.decorator.js';
 import { UserRoleEnum } from './types/users.types.js';
 import { UserUpdateDto } from './dtos/user-update.dto.js';
+import { CurrentUser } from '../decorators/current-user.decorator.js';
 
 @Controller('users')
 @UseGuards(AuthGuard, RoleGuard)
@@ -25,12 +26,12 @@ export class UsersController {
 
     @Delete(':id')
     @HttpCode(204)
-    delete(@Param('id', ParseUUIDPipe) id: string) {
-        return this._usersService.delete(id)
+    delete(@Param('id', ParseUUIDPipe) id: string, @CurrentUser('id') currentUserId: string) {
+        return this._usersService.delete(id, currentUserId)
     }
 
     @Patch(':id')
     update(@Body() dto: UserUpdateDto, @Param('id', ParseUUIDPipe) id: string) {
-     return this._usersService.update(dto, id)
+     return this._usersService.update(dto, id)  
     }
 }

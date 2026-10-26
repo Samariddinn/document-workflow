@@ -1,17 +1,18 @@
-import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { KNEX } from '../../database/database.constants.js';
 import type { Knex } from 'knex';
 import { IUser, UserRoleEnum } from './types/users.types.js';
 import { CreateUserDto } from './dtos/user-create.dto.js';
 import argon2 from "argon2";
 import { UserUpdateDto } from './dtos/user-update.dto.js';
+import { AuthUser } from '../auth/types/auth-user.types.js';
 
 @Injectable()
 export class UsersService {
     @Inject(KNEX) private _db: Knex;
 
     async findByUsername(username: string): Promise<IUser | undefined> {
-        return this._db<IUser>('users').where({ username }).first();
+        return this._db<IUser>('users').where({ username, is_deleted: false }).first();
     }
 
     async create(dto: CreateUserDto) {
@@ -67,26 +68,43 @@ export class UsersService {
             .orderBy('users.created_at', 'desc');
     }
 
-    async delete(id: string) {
-       const [user] = await this._db('users')
-       .where({id, is_deleted: false})
-       .update({is_deleted: true, updated_at: this._db.fn.now()})
-       .returning(['id'])
+    async delete(id: string, currentUserId: string) {
+        if (id === currentUserId) {
+            throw new ForbiddenException('You cannot delete your own account');
+        }
+        
+        const target = await this._db('users')
+            .where({ id, is_deleted: false })
+            .first('id', 'role');
 
-       if(!user) {
-        throw new NotFoundException('User not found');
-       }
-    } 
+        if (!target) {
+            throw new NotFoundException('User not found');
+        }
+
+        if (target.role === UserRoleEnum.SUPER_ADMIN) {
+            throw new ForbiddenException('Super admin accounts cannot be deleted');
+        }
+
+        await this._db('users')
+            .where({ id })
+            .update({ is_deleted: true, updated_at: this._db.fn.now() });
+    }
 
     async update(dto: UserUpdateDto, id: string) {
-        const rowToUpdate = await this._db('users').where({is_deleted: false, id})
-        .update({...dto})
-        .returning('*').first();
+        const rowToUpdate = await this._db('users').where({ is_deleted: false, id })
+            .update({ ...dto })
+            .returning('*').first();
 
-        if(!rowToUpdate) {
+        if (!rowToUpdate) {
             throw new NotFoundException('Row not found')
         }
 
         return rowToUpdate;
+    }
+
+    async findActiveById(id: string): Promise<AuthUser | undefined> {
+        return this._db('users')
+            .where({ id, is_deleted: false })
+            .first('id', 'role', 'org_id', 'first_name', 'middle_name', 'last_name')
     }
 }

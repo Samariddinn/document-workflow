@@ -9,6 +9,7 @@ export interface IUser {
   last_name: string;
   created_at: Date;
   updated_at: Date;
+  is_deleted: boolean;
 };
 
 export enum UserRoleEnum {

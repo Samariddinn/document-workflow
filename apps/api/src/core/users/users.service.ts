@@ -90,6 +90,14 @@ export class UsersService {
             .update({ is_deleted: true, updated_at: this._db.fn.now() });
     }
 
+    async colleagues(user: AuthUser) {
+       return await this._db('users as u')
+        .select('id', 'first_name', 'middle_name', 'last_name')
+        .where({org_id: user.org_id, is_deleted: false, role: UserRoleEnum.EMPLOYEE})
+        .whereNot({id: user.id})
+        .orderBy(['last_name', 'first_name']);
+    }
+
     async update(dto: UserUpdateDto, id: string) {
         const rowToUpdate = await this._db('users').where({ is_deleted: false, id })
             .update({ ...dto })

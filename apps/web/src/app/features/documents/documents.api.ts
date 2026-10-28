@@ -26,6 +26,25 @@ export interface DocumentRecord {
   updated_at: string;
 }
 
+/** Body of `PATCH /documents/:id`: the full new state, file lists replace the current links. */
+export type UpdateDocumentRequest = CreateDocumentRequest;
+
+export interface DocumentFile {
+  id: string;
+  name: string;
+  mime_type: string;
+  size: string;
+  kind: 'MAIN' | 'ADDITIONAL' | 'SIGNED';
+}
+
+/** Response of `GET /documents/:id`. */
+export interface DocumentDetail extends DocumentRecord {
+  files: DocumentFile[];
+}
+
+/** Statuses in which the author may still edit the document (mirrors the API's check). */
+export const EDITABLE_STATUSES: readonly DocumentStatus[] = ['DRAFT', 'RETURNED'];
+
 /** Response of `GET /documents`: one page plus the total across all pages. */
 export interface DocumentPage {
   list: DocumentRecord[];
@@ -47,6 +66,31 @@ export class DocumentsApi {
   /** The current user's own documents, newest first. */
   list(limit: number, offset: number): Observable<DocumentPage> {
     return this.http.get<DocumentPage>('/api/documents', { params: { limit, offset } });
+  }
+
+  /** One of the current user's documents, with its attached files. */
+  get(id: string): Observable<DocumentDetail> {
+    return this.http.get<DocumentDetail>(`/api/documents/${id}`);
+  }
+
+  /** Allowed for the author while the document is DRAFT or RETURNED. */
+  update(id: string, body: UpdateDocumentRequest): Observable<DocumentRecord> {
+    return this.http.patch<DocumentRecord>(`/api/documents/${id}`, body);
+  }
+
+  /**
+   * Sends a DRAFT or RETURNED document to the chosen approvers (a new approval attempt).
+   * Contract agreed for the API: `POST /documents/:id/submit` with `{ approver_ids }`.
+   */
+  submit(id: string, approverIds: string[]): Observable<DocumentRecord> {
+    return this.http.post<DocumentRecord>(`/api/documents/${id}/submit`, {
+      approver_ids: approverIds,
+    });
+  }
+
+  /** Soft-deletes the document. The API allows it only for the author's own DRAFT documents. */
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`/api/documents/${id}`);
   }
 
   /** Creates a DRAFT; the files must already be uploaded through `POST /files`. */

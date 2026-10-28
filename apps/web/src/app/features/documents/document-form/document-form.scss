@@ -48,6 +48,10 @@ app-file-uploader.invalid {
   gap: 8px;
   margin: 16px 0 0;
   padding: 12px;
+
+  &:first-child {
+    margin-top: 8px;
+  }
   border-radius: var(--mat-sys-corner-small);
   font: var(--mat-sys-body-medium);
   word-break: break-word;
@@ -69,4 +73,13 @@ mat-card-actions {
   mat-spinner {
     margin: 0 auto;
   }
+}
+
+.spacer {
+  flex: 1;
+}
+
+.loading-text {
+  margin: 16px 0 0;
+  color: var(--mat-sys-on-surface-variant);
 }

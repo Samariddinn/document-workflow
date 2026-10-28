@@ -11,6 +11,9 @@ export interface StoredFile {
   created_at: string;
 }
 
+/** The parts of a file a form needs to show it and send its id back. */
+export type FileRef = Pick<StoredFile, 'id' | 'name' | 'mime_type' | 'size'>;
+
 /** Mirrors the API's limits in FilesController, so bad files are rejected before uploading. */
 export const MAX_FILE_SIZE = 20 * 1024 * 1024;
 export const ALLOWED_MIME_TYPES = [

@@ -3,7 +3,10 @@ import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
@@ -11,11 +14,14 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { errorMessage } from '../../../core/http/error-message';
+import { ConfirmDialog, ConfirmDialogData } from '../../../core/ui/confirm-dialog/confirm-dialog';
+import { SubmitDialog, SubmitDialogData, SubmitDialogResult } from '../submit-dialog/submit-dialog';
 import {
   DOCUMENT_STATUS_LABELS,
   DocumentRecord,
   DocumentsApi,
   DocumentStatus,
+  EDITABLE_STATUSES,
 } from '../documents.api';
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
@@ -33,6 +39,7 @@ const DEFAULT_PAGE_SIZE = 20;
     MatTableModule,
     MatPaginatorModule,
     MatProgressBarModule,
+    MatMenuModule,
   ],
   templateUrl: './documents-page.html',
   styleUrl: './documents-page.scss',
@@ -42,9 +49,11 @@ export class DocumentsPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
   private request?: Subscription;
 
-  protected readonly columns = ['document_number', 'description', 'status', 'created_at'];
+  protected readonly columns = ['document_number', 'description', 'status', 'created_at', 'actions'];
   protected readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
 
   protected readonly documents = signal<DocumentRecord[]>([]);
@@ -67,6 +76,50 @@ export class DocumentsPage implements OnInit {
 
   protected statusLabel(status: DocumentStatus): string {
     return DOCUMENT_STATUS_LABELS[status] ?? status;
+  }
+
+  protected isEditable(document: DocumentRecord): boolean {
+    return EDITABLE_STATUSES.includes(document.status);
+  }
+
+  protected openSubmit(document: DocumentRecord): void {
+    this.dialog
+      .open<SubmitDialog, SubmitDialogData, SubmitDialogResult>(SubmitDialog, {
+        data: { document },
+        width: '520px',
+        maxWidth: 'calc(100vw - 32px)',
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (!result) return;
+        const people = result.approverCount === 1 ? 'approver' : 'approvers';
+        this.snackBar.open(
+          `${result.document.document_number} sent to ${result.approverCount} ${people}`,
+          undefined,
+          { duration: 3000 },
+        );
+        this.load();
+      });
+  }
+
+  protected confirmDelete(document: DocumentRecord): void {
+    const data: ConfirmDialogData = {
+      title: `Delete ${document.document_number}?`,
+      message: 'This draft will be removed from your documents. Its number stays reserved and cannot be reused.',
+      confirmLabel: 'Delete draft',
+      destructive: true,
+      action: () => this.api.delete(document.id),
+    };
+
+    this.dialog
+      .open(ConfirmDialog, { data, width: '460px', maxWidth: 'calc(100vw - 32px)' })
+      .afterClosed()
+      .subscribe((deleted) => {
+        if (!deleted) return;
+        this.snackBar.open(`Deleted ${document.document_number}`, undefined, { duration: 3000 });
+        // Reload rather than splice: the next page's first row moves up, and an emptied last page steps back
+        this.load();
+      });
   }
 
   protected onPage(event: PageEvent): void {

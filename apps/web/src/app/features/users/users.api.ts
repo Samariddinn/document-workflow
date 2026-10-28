@@ -51,9 +51,22 @@ export interface User {
   created_at: string;
 }
 
+/** Row of `GET /users/colleagues`: another employee of the caller's organization. */
+export interface Colleague {
+  id: string;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class UsersApi {
   private readonly http = inject(HttpClient);
+
+  /** Employees of the current user's organization (excluding the user), sorted by name. */
+  colleagues(): Observable<Colleague[]> {
+    return this.http.get<Colleague[]>('/api/users/colleagues');
+  }
 
   list(): Observable<UserListItem[]> {
     return this.http.get<UserListItem[] | null>('/api/users').pipe(

@@ -7,6 +7,7 @@ import { Roles } from '../decorators/role.decorator.js';
 import { UserRoleEnum } from './types/users.types.js';
 import { UserUpdateDto } from './dtos/user-update.dto.js';
 import { CurrentUser } from '../decorators/current-user.decorator.js';
+import * as authUserTypes from '../auth/types/auth-user.types.js';
 
 @Controller('users')
 @UseGuards(AuthGuard, RoleGuard)
@@ -22,6 +23,12 @@ export class UsersController {
     @Get()
     async list() {
         return this._usersService.list();
+    }
+
+    @Get('colleagues')
+    @Roles(UserRoleEnum.EMPLOYEE)
+    async colleagues(@CurrentUser() user: authUserTypes.AuthUser) {
+     return this._usersService.colleagues(user);
     }
 
     @Delete(':id')

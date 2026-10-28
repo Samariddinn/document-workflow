@@ -1,0 +1,85 @@
+<h2 mat-dialog-title>Send {{ data.document.document_number }} for approval</h2>
+
+<mat-dialog-content>
+  <p class="intro">
+    Choose who must approve this document. It goes to all of them at the same time; if anyone
+    rejects it, it comes back to you.
+  </p>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" />
+  } @else if (loadError(); as message) {
+    <div class="banner error" role="alert">
+      <mat-icon>error</mat-icon>
+      <span>Could not load colleagues: {{ message }}</span>
+      <span class="spacer"></span>
+      <button mat-button type="button" (click)="load()">Retry</button>
+    </div>
+  } @else if (colleagues().length === 0) {
+    <div class="banner info" role="status">
+      <mat-icon>info</mat-icon>
+      <span>There are no other employees in your organization to approve this document.</span>
+    </div>
+  } @else {
+    <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
+      <mat-label>Search by name</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        matInput
+        autocomplete="off"
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)"
+        [disabled]="sending()"
+      />
+    </mat-form-field>
+
+    <div class="list-header">
+      <span>{{ selected().size }} selected</span>
+      @if (selected().size >= maxApprovers) {
+        <span class="limit">Maximum {{ maxApprovers }} approvers</span>
+      }
+    </div>
+
+    @if (visible().length === 0) {
+      <p class="no-match">No colleagues match "{{ search() }}".</p>
+    } @else {
+      <mat-selection-list class="people" [disabled]="sending()" aria-label="Approvers">
+        @for (person of visible(); track person.id) {
+          <mat-list-option
+            togglePosition="before"
+            [selected]="isSelected(person.id)"
+            [disabled]="!isSelected(person.id) && selected().size >= maxApprovers"
+            (selectedChange)="toggle(person.id)"
+          >
+            <span matListItemTitle>{{ fullName(person) }}</span>
+          </mat-list-option>
+        }
+      </mat-selection-list>
+    }
+  }
+
+  @if (error(); as message) {
+    <div class="banner error" role="alert">
+      <mat-icon>error</mat-icon>
+      <span>{{ message }}</span>
+    </div>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close [disabled]="sending()">Cancel</button>
+  <button
+    mat-flat-button
+    type="button"
+    [disabled]="selected().size === 0 || sending()"
+    (click)="send()"
+  >
+    @if (sending()) {
+      <mat-spinner diameter="20" />
+    } @else if (selected().size === 0) {
+      Choose approvers
+    } @else {
+      Send to {{ selected().size }} {{ selected().size === 1 ? 'approver' : 'approvers' }}
+    }
+  </button>
+</mat-dialog-actions>

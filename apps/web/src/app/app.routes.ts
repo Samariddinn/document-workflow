@@ -43,7 +43,14 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard('EMPLOYEE')],
     canDeactivate: [unsavedChangesGuard],
     loadComponent: () =>
-      import('./features/documents/document-create/document-create').then((m) => m.DocumentCreate),
+      import('./features/documents/document-form/document-form').then((m) => m.DocumentForm),
+  },
+  {
+    path: 'documents/:id/edit',
+    canActivate: [authGuard, roleGuard('EMPLOYEE')],
+    canDeactivate: [unsavedChangesGuard],
+    loadComponent: () =>
+      import('./features/documents/document-form/document-form').then((m) => m.DocumentForm),
   },
   {
     path: 'files',

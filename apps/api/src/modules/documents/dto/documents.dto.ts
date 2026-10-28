@@ -1,7 +1,9 @@
+import { PartialType, PickType } from "@nestjs/mapped-types";
 import { Type } from "class-transformer";
 import {
     ArrayMaxSize,
     ArrayMinSize,
+    ArrayNotEmpty,
     ArrayUnique,
     IsArray,
     IsInt,
@@ -43,6 +45,8 @@ export class DocumentCreateDto {
     document_number: string;
 }
 
+export class DocumentUpdateDto extends DocumentCreateDto {}
+
 export class DocumentListDto {
     @IsOptional()
     @Type(() => Number)
@@ -56,4 +60,13 @@ export class DocumentListDto {
     @IsInt()
     @Min(0)
     offset?: number;
+}
+
+export class DocumentSubmitDto {
+    @IsArray()
+    @ArrayNotEmpty()
+    @IsString({each: true})
+    @IsNotEmpty({each: true})
+    
+    approver_ids: string[];
 }

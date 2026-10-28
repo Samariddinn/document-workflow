@@ -1,13 +1,13 @@
 import { DecimalPipe } from '@angular/common';
 import { HttpEventType } from '@angular/common/http';
-import { Component, computed, DestroyRef, inject, input, model, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, model, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Subscription } from 'rxjs';
 import { errorMessage } from '../../../core/http/error-message';
-import { ACCEPT_ATTRIBUTE, FilesApi, StoredFile, validateUpload } from '../files.api';
+import { ACCEPT_ATTRIBUTE, FileRef, FilesApi, validateUpload } from '../files.api';
 
 interface UploadItem {
   key: number;
@@ -16,12 +16,13 @@ interface UploadItem {
   progress: number;
   status: 'uploading' | 'done' | 'error';
   error?: string;
-  stored?: StoredFile;
+  stored?: FileRef;
 }
 
 /**
  * Uploads picked or dropped files right away and exposes the uploaded ones through `files`,
  * so a form can send their ids (e.g. `[(files)]="mainFiles"`).
+ * Files already in `files` when the component starts (e.g. an edited document's) are listed as uploaded.
  */
 @Component({
   selector: 'app-file-uploader',
@@ -29,14 +30,14 @@ interface UploadItem {
   templateUrl: './file-uploader.html',
   styleUrl: './file-uploader.scss',
 })
-export class FileUploader {
+export class FileUploader implements OnInit {
   private readonly api = inject(FilesApi);
   private readonly destroyRef = inject(DestroyRef);
   private readonly uploads = new Map<number, Subscription>();
   private nextKey = 0;
 
   readonly label = input.required<string>();
-  readonly files = model<StoredFile[]>([]);
+  readonly files = model<FileRef[]>([]);
 
   /** True while any file is still uploading; the parent form should not submit yet. */
   readonly busy = computed(() => this.items().some((item) => item.status === 'uploading'));
@@ -44,6 +45,19 @@ export class FileUploader {
   protected readonly accept = ACCEPT_ATTRIBUTE;
   protected readonly items = signal<UploadItem[]>([]);
   protected readonly dragging = signal(false);
+
+  ngOnInit(): void {
+    this.items.set(
+      this.files().map((file) => ({
+        key: this.nextKey++,
+        name: file.name,
+        size: Number(file.size),
+        progress: 100,
+        status: 'done' as const,
+        stored: file,
+      })),
+    );
+  }
 
   protected onPick(input: HTMLInputElement): void {
     this.handleFiles(input.files);

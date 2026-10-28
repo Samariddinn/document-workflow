@@ -1,6 +1,16 @@
 <mat-toolbar>
   <span>Document Workflow</span>
   <span class="spacer"></span>
+  @if (auth.user()?.role === 'EMPLOYEE') {
+    <a mat-button routerLink="/documents">
+      <mat-icon>description</mat-icon>
+      My documents
+    </a>
+  }
+  <a mat-button routerLink="/files">
+    <mat-icon>upload_file</mat-icon>
+    Files
+  </a>
   @if (auth.user()?.role === 'SUPER_ADMIN') {
     <a mat-button routerLink="/organizations">
       <mat-icon>apartment</mat-icon>

@@ -1,0 +1,118 @@
+<mat-toolbar>
+  <a mat-icon-button routerLink="/" aria-label="Back to home">
+    <mat-icon>arrow_back</mat-icon>
+  </a>
+  <span>Approvals</span>
+</mat-toolbar>
+
+<main class="content">
+  <mat-card appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>Waiting for your approval</mat-card-title>
+      @if (!loading() && !error()) {
+        <mat-card-subtitle>
+          {{ total() === 0 ? 'Nothing pending' : total() + ' pending, oldest first' }}
+        </mat-card-subtitle>
+      }
+    </mat-card-header>
+
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    <mat-card-content>
+      @if (error(); as message) {
+        <div class="banner error" role="alert">
+          <mat-icon>error</mat-icon>
+          <span>{{ message }}</span>
+          <span class="spacer"></span>
+          <button mat-button type="button" (click)="load()">Retry</button>
+        </div>
+      } @else if (!loading() && total() === 0) {
+        <div class="empty">
+          <mat-icon class="empty-icon">task_alt</mat-icon>
+          <p>You're all caught up. Documents sent to you for approval will appear here.</p>
+          <a mat-button routerLink="/documents">Go to my documents</a>
+        </div>
+      } @else if (approvals().length > 0) {
+        <div class="table-scroll">
+          <table mat-table [dataSource]="approvals()">
+            <ng-container matColumnDef="document_number">
+              <th mat-header-cell *matHeaderCellDef>Number</th>
+              <td mat-cell *matCellDef="let item" class="number">
+                <a class="open-link" [routerLink]="['/approvals', item.id]" (click)="$event.stopPropagation()">
+                  {{ item.document_number }}
+                </a>
+                @if (item.kind === 'PROTOCOL') {
+                  <span class="kind">Protocol</span>
+                }
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="description">
+              <th mat-header-cell *matHeaderCellDef>Description</th>
+              <td mat-cell *matCellDef="let item" class="description">{{ item.description }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="author">
+              <th mat-header-cell *matHeaderCellDef>Author</th>
+              <td mat-cell *matCellDef="let item" class="author">{{ authorName(item) }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="sent_at">
+              <th mat-header-cell *matHeaderCellDef>Sent</th>
+              <td mat-cell *matCellDef="let item" class="date">{{ item.sent_at | date: 'medium' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef><span class="cdk-visually-hidden">Actions</span></th>
+              <td mat-cell *matCellDef="let item" class="actions-cell">
+                <div class="actions">
+                  <button
+                    mat-button
+                    type="button"
+                    class="reject"
+                    [attr.aria-label]="'Reject ' + item.document_number"
+                    (click)="$event.stopPropagation(); reject(item)"
+                  >
+                    <mat-icon>close</mat-icon>
+                    Reject
+                  </button>
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    [attr.aria-label]="'Approve ' + item.document_number"
+                    (click)="$event.stopPropagation(); approve(item)"
+                  >
+                    <mat-icon>check</mat-icon>
+                    Approve
+                  </button>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: columns"
+              class="clickable-row"
+              (click)="open(row)"
+            ></tr>
+          </table>
+        </div>
+      }
+    </mat-card-content>
+
+    @if (total() > 0) {
+      <mat-paginator
+        [length]="total()"
+        [pageIndex]="pageIndex()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="pageSizeOptions"
+        [disabled]="loading()"
+        (page)="onPage($event)"
+        aria-label="Select page of approvals"
+      />
+    }
+  </mat-card>
+</main>

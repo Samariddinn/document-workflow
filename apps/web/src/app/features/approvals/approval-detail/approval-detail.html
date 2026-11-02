@@ -1,0 +1,139 @@
+<mat-toolbar>
+  <a mat-icon-button routerLink="/approvals" aria-label="Back to approvals">
+    <mat-icon>arrow_back</mat-icon>
+  </a>
+  <span>{{ approval()?.document_number ?? 'Approval' }}</span>
+</mat-toolbar>
+
+<main class="content">
+  <mat-card appearance="outlined">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+      <mat-card-content>
+        <p class="muted">Loading document…</p>
+      </mat-card-content>
+    } @else if (error(); as message) {
+      <mat-card-content>
+        <div class="banner error" role="alert">
+          <mat-icon>error</mat-icon>
+          <span>Could not load this approval: {{ message }}</span>
+          <span class="spacer"></span>
+          <button mat-button type="button" (click)="load()">Retry</button>
+        </div>
+      </mat-card-content>
+      <mat-card-actions align="end">
+        <a mat-button routerLink="/approvals">Back to approvals</a>
+      </mat-card-actions>
+    } @else if (approval(); as a) {
+      <mat-card-header>
+        <mat-card-title class="title">
+          {{ a.document_number }}
+          @if (a.kind === 'PROTOCOL') {
+            <span class="kind">Protocol</span>
+          }
+        </mat-card-title>
+        <mat-card-subtitle>Sent by {{ authorName(a) }} · {{ a.sent_at | date: 'medium' }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <p class="description">{{ a.description }}</p>
+
+        @if (a.attempt > 1) {
+          <p class="banner info" role="status">
+            <mat-icon>replay</mat-icon>
+            <span>This document was returned earlier and sent again (round {{ a.attempt }}).</span>
+          </p>
+        }
+
+        @if (!a.can_decide) {
+          @switch (a.status) {
+            @case ('APPROVED') {
+              <p class="banner success" role="status">
+                <mat-icon>check_circle</mat-icon>
+                <span>You approved this on {{ a.decided_at | date: 'medium' }}.</span>
+              </p>
+            }
+            @case ('REJECTED') {
+              <div class="banner error" role="status">
+                <mat-icon>cancel</mat-icon>
+                <span>
+                  You rejected this on {{ a.decided_at | date: 'medium' }}.
+                  @if (a.comment) {
+                    <br />Reason: <em>{{ a.comment }}</em>
+                  }
+                </span>
+              </div>
+            }
+            @case ('CANCELLED') {
+              <p class="banner info" role="status">
+                <mat-icon>block</mat-icon>
+                <span>Another approver rejected this document, so your vote is no longer needed.</span>
+              </p>
+            }
+            @default {
+              <p class="banner info" role="status">
+                <mat-icon>info</mat-icon>
+                <span>This document is no longer waiting for approval.</span>
+              </p>
+            }
+          }
+        }
+
+        <h2>Main files</h2>
+        <ng-container *ngTemplateOutlet="fileList; context: { $implicit: mainFiles() }" />
+
+        @if (additionalFiles().length > 0) {
+          <h2>Additional files</h2>
+          <ng-container *ngTemplateOutlet="fileList; context: { $implicit: additionalFiles() }" />
+        }
+      </mat-card-content>
+
+      @if (a.can_decide) {
+        <mat-card-actions align="end">
+          <button mat-button type="button" class="reject" (click)="reject()">
+            <mat-icon>close</mat-icon>
+            Reject
+          </button>
+          <button mat-flat-button type="button" (click)="approve()">
+            <mat-icon>check</mat-icon>
+            Approve
+          </button>
+        </mat-card-actions>
+      }
+    }
+  </mat-card>
+</main>
+
+<ng-template #fileList let-files>
+  @if (files.length === 0) {
+    <p class="muted">No files.</p>
+  } @else {
+    <ul class="files">
+      @for (file of files; track file.id) {
+        <li class="file">
+          <mat-icon class="file-icon">description</mat-icon>
+          <div class="file-details">
+            <span class="file-name">{{ file.name }}</span>
+            <span class="file-meta">{{ +file.size / 1024 | number: '1.0-0' }} KB</span>
+            @if (downloadErrors()[file.id]; as message) {
+              <span class="file-error" role="alert">{{ message }}</span>
+            }
+          </div>
+          <button
+            mat-icon-button
+            type="button"
+            [disabled]="downloading().has(file.id)"
+            [attr.aria-label]="'Download ' + file.name"
+            (click)="download(file)"
+          >
+            @if (downloading().has(file.id)) {
+              <mat-spinner diameter="20" />
+            } @else {
+              <mat-icon>download</mat-icon>
+            }
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</ng-template>

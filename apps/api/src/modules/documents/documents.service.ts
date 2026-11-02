@@ -91,8 +91,16 @@ export class DocumentsService {
             .where('df.document_id', id)
             .orderBy('f.created_at')
 
+        const rejection = await this._db('document_agreements as a')
+            .join('users as u', 'u.id', 'a.user_id')
+            .select('a.comment', 'a.decided_at', 'u.first_name', 'u.middle_name', 'u.last_name')
+            .where({
+                'a.document_id': id,
+                'a.attempt': doc.current_attempt,
+                'a.status': 'REJECTED'
+            }).first();
 
-        return { ...doc, files }
+        return { ...doc, files, rejection: rejection ?? null }
     }
 
     async update(id: string, dto: DocumentUpdateDto, userId: string) {

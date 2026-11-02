@@ -49,10 +49,23 @@
       <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
         <mat-card-content>
           @if (document()?.status === 'RETURNED') {
-            <p class="banner info" role="status">
-              <mat-icon>undo</mat-icon>
-              <span>This document was returned. Fix it here, then send it for approval again.</span>
-            </p>
+            @if (document()?.rejection; as rejection) {
+              <div class="banner error rejection" role="status">
+                <mat-icon>undo</mat-icon>
+                <div>
+                  <p>
+                    Returned by <strong>{{ rejectedBy() }}</strong> on {{ rejection.decided_at | date: 'medium' }}
+                  </p>
+                  <p class="reason">{{ rejection.comment }}</p>
+                  <p>Fix it here, then send it for approval again.</p>
+                </div>
+              </div>
+            } @else {
+              <p class="banner info" role="status">
+                <mat-icon>undo</mat-icon>
+                <span>This document was returned. Fix it here, then send it for approval again.</span>
+              </p>
+            }
           }
 
           <h2>Details</h2>

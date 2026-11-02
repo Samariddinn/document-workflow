@@ -53,6 +53,24 @@ export const routes: Routes = [
       import('./features/documents/document-form/document-form').then((m) => m.DocumentForm),
   },
   {
+    path: 'approvals',
+    canActivate: [authGuard, roleGuard('EMPLOYEE')],
+    loadComponent: () =>
+      import('./features/approvals/approvals-page/approvals-page').then((m) => m.ApprovalsPage),
+  },
+  {
+    path: 'approvals/:id',
+    canActivate: [authGuard, roleGuard('EMPLOYEE')],
+    loadComponent: () =>
+      import('./features/approvals/approval-detail/approval-detail').then((m) => m.ApprovalDetail),
+  },
+  {
+    path: 'signatures',
+    canActivate: [authGuard, roleGuard('HEAD')],
+    loadComponent: () =>
+      import('./features/signatures/signatures-page/signatures-page').then((m) => m.SignaturesPage),
+  },
+  {
     path: 'files',
     canActivate: [authGuard],
     loadComponent: () =>

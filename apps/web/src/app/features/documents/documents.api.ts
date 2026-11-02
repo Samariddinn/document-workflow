@@ -37,9 +37,20 @@ export interface DocumentFile {
   kind: 'MAIN' | 'ADDITIONAL' | 'SIGNED';
 }
 
+/** Who rejected the current approval round, and why. */
+export interface DocumentRejection {
+  comment: string;
+  decided_at: string;
+  first_name: string;
+  middle_name: string | null;
+  last_name: string;
+}
+
 /** Response of `GET /documents/:id`. */
 export interface DocumentDetail extends DocumentRecord {
   files: DocumentFile[];
+  /** Set only while the current round was rejected (document `RETURNED`). */
+  rejection: DocumentRejection | null;
 }
 
 /** Statuses in which the author may still edit the document (mirrors the API's check). */

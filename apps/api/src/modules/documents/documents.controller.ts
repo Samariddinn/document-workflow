@@ -33,7 +33,7 @@ export class DocumentsController {
 
     @Post(':id/submit')
     @Roles(UserRoleEnum.EMPLOYEE)
-    async submitToApprovers(@Param('id') document_id: string, @Body() dto: DocumentSubmitDto, @CurrentUser() user: AuthUser) {
+    async submitToApprovers(@Param('id', ParseUUIDPipe) document_id: string, @Body() dto: DocumentSubmitDto, @CurrentUser() user: AuthUser) {
       return this._documentsService.submit(document_id, dto, user)
     }
 

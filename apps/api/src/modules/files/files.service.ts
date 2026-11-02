@@ -53,7 +53,12 @@ export class FilesService {
         }
 
         if (user.role !== UserRoleEnum.SUPER_ADMIN && file.uploaded_by !== user.id) {
-            throw new ForbiddenException();
+            const linked = await this._db('document_files as df')
+                .join('document_agreements as a', 'a.document_id', 'df.document_id')
+                .where({ 'df.file_id': id, 'a.user_id': user.id })
+                .first('df.file_id');
+
+            if (!linked) throw new ForbiddenException();
         }
 
         const stream = await this._storage.getStream(file.storage_key);

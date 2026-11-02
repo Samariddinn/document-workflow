@@ -1,0 +1,46 @@
+<h2 mat-dialog-title>Reject {{ data.item.document_number }}?</h2>
+
+<form [formGroup]="form" (ngSubmit)="reject()" novalidate>
+  <mat-dialog-content>
+    <p class="intro">
+      The document goes back to its author for changes, and the other approvers' pending votes are
+      cancelled. When it is sent again, approval starts from the beginning.
+    </p>
+
+    <mat-form-field appearance="outline" class="reason">
+      <mat-label>Reason</mat-label>
+      <textarea
+        matInput
+        formControlName="reason"
+        rows="4"
+        [maxlength]="maxLength"
+        cdkFocusInitial
+      ></textarea>
+      <mat-hint>The author sees this to know what to fix</mat-hint>
+      <mat-hint align="end">{{ reason.value.length }} / {{ maxLength }}</mat-hint>
+      @if (reason.hasError('required') || reason.hasError('pattern')) {
+        <mat-error>A reason is required to reject</mat-error>
+      } @else if (reason.hasError('maxlength')) {
+        <mat-error>At most {{ maxLength }} characters</mat-error>
+      }
+    </mat-form-field>
+
+    @if (error(); as message) {
+      <p class="error" role="alert">
+        <mat-icon>error</mat-icon>
+        <span>{{ message }}</span>
+      </p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close [disabled]="busy()">Cancel</button>
+    <button mat-flat-button type="submit" class="destructive" [disabled]="busy()">
+      @if (busy()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        Reject
+      }
+    </button>
+  </mat-dialog-actions>
+</form>

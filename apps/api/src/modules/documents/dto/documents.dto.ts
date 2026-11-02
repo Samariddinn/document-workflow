@@ -67,6 +67,9 @@ export class DocumentSubmitDto {
     @ArrayNotEmpty()
     @IsString({each: true})
     @IsNotEmpty({each: true})
+    @IsUUID(undefined, {each: true})
+    @ArrayUnique()
+    @ArrayMaxSize(20)
     
     approver_ids: string[];
 }

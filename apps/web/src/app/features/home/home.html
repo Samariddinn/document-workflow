@@ -6,6 +6,16 @@
       <mat-icon>description</mat-icon>
       My documents
     </a>
+    <a mat-button routerLink="/approvals">
+      <mat-icon>fact_check</mat-icon>
+      Approvals
+    </a>
+  }
+  @if (auth.user()?.role === 'HEAD') {
+    <a mat-button routerLink="/signatures">
+      <mat-icon>draw</mat-icon>
+      To sign
+    </a>
   }
   <a mat-button routerLink="/files">
     <mat-icon>upload_file</mat-icon>

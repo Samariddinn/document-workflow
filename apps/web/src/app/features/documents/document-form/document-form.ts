@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import {
   Component,
   computed,
@@ -37,6 +38,7 @@ import {
   imports: [
     ReactiveFormsModule,
     RouterLink,
+    DatePipe,
     MatToolbarModule,
     MatCardModule,
     MatFormFieldModule,
@@ -83,6 +85,13 @@ export class DocumentForm implements OnInit, HasUnsavedChanges {
   protected readonly locked = computed(() => {
     const document = this.document();
     return !!document && !EDITABLE_STATUSES.includes(document.status);
+  });
+
+  protected readonly rejectedBy = computed(() => {
+    const rejection = this.document()?.rejection;
+    return rejection
+      ? [rejection.last_name, rejection.first_name, rejection.middle_name].filter(Boolean).join(' ')
+      : '';
   });
 
   protected readonly submitted = signal(false);

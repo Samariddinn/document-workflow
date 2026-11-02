@@ -14,6 +14,7 @@ import {
   ACCEPT_ATTRIBUTE,
   FilesApi,
   MAX_FILE_SIZE,
+  saveBlob,
   StoredFile,
   validateUpload,
 } from '../files.api';
@@ -90,7 +91,7 @@ export class FilesPage {
     this.subscriptions.add(
       this.api.download(stored.id).subscribe({
         next: (blob) => {
-          this.saveBlob(blob, stored.name);
+          saveBlob(blob, stored.name);
           this.patch(item.id, { downloading: false });
         },
         error: (err) =>
@@ -142,16 +143,6 @@ export class FilesPage {
         error: (err) => this.patch(item.id, { status: 'error', error: errorMessage(err) }),
       }),
     );
-  }
-
-  /** Triggers the browser's "save file" through a temporary link to the downloaded bytes. */
-  private saveBlob(blob: Blob, filename: string): void {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.click();
-    URL.revokeObjectURL(url);
   }
 
   private patch(id: number, changes: Partial<UploadItem>): void {

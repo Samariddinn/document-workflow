@@ -24,6 +24,16 @@ export const ALLOWED_MIME_TYPES = [
 ];
 export const ACCEPT_ATTRIBUTE = '.pdf,.png,.jpg,.jpeg,.docx';
 
+/** Triggers the browser's "save file" for downloaded bytes, through a temporary link. */
+export function saveBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 /** Same checks the API runs; returns a message, or null when the file can be uploaded. */
 export function validateUpload(file: File): string | null {
   if (file.size === 0) return 'File is empty';
